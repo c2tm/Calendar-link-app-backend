@@ -32,6 +32,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'calendar-link-app-backend-production.up.railway.app']
 
+CSRF_TRUSTED_ORIGINS = ['https://calendar-link-app-backend-production.up.railway.app']
+
 # Application definition
 
 INSTALLED_APPS = [
