@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.contrib.auth import get_user_model
 from django.core.files.storage import default_storage
+from django.urls import reverse
 from django.utils.text import slugify
 from django.core.files.base import ContentFile
 from django.http import HttpResponse, JsonResponse
@@ -14,6 +15,7 @@ from openai import OpenAI
 from .ical_utils import ics_from_data_uri, looks_like_ics, normalize_crlf
 from django.views.decorators.csrf import csrf_exempt
 from .models import Subscription
+from django.http import FileResponse, Http404
 import os
 import json
 import uuid
@@ -74,9 +76,11 @@ class getEventLink(views.APIView):
                     return Response({"detail": "invalid or too large ics payload"}, status=status.HTTP_400_BAD_REQUEST)
 
                 filename = f"ical/{slugify('event')}-{uuid.uuid4().hex}.ics"
-                path = default_storage.save(filename, ContentFile(ics_text))
-                hosted_url = request.build_absolute_uri(default_storage.url(path))
-                openai_response_decoded['links']['icalendar'] = hosted_url
+                path_key = default_storage.save(filename, ContentFile(ics_text))
+                download_path = reverse("download-ics", kwargs={"key": path_key})
+                download_url = request.build_absolute_uri(download_path)
+
+                openai_response_decoded['links']['icalendar'] = download_url
             
             if not current_user.bypass_token_limit:
                current_user.tokens = tokens - 1
@@ -85,6 +89,19 @@ class getEventLink(views.APIView):
         else:
             return Response(json.dumps({"msg": "No free tokens remaining"}), status=status.HTTP_400_BAD_REQUEST)
         
+class DownloadIcsView(views.APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, key: str):
+        if not default_storage.exists(key):
+            raise Http404
+        f = default_storage.open(key, "rb")
+        return FileResponse(
+            f,
+            as_attachment=True,
+            filename="event.ics",
+            content_type="text/calendar; charset=utf-8",
+        )       
 
 """
 
