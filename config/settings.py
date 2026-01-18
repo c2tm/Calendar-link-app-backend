@@ -34,6 +34,10 @@ ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'calendar-link-app-backend-production
 
 CSRF_TRUSTED_ORIGINS = ['https://calendar-link-app-backend-production.up.railway.app']
 
+# Trust proxy headers for HTTPS detection (Railway/Vercel/etc.)
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+USE_X_FORWARDED_HOST = True
+
 # Application definition
 
 INSTALLED_APPS = [
