@@ -32,7 +32,7 @@ DATA_DIR = Path(VOLUME_MOUNT) if len(VOLUME_MOUNT) > 1 else BASE_DIR
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'calendar-link-app-backend-production.up.railway.app']
 
