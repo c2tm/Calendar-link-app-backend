@@ -52,10 +52,11 @@ class getEventLink(views.APIView):
 
         if current_user.bypass_token_limit or tokens > 0:
             event_details = request.data['event_details']
+            time_zone = request.data['timezone']
             prompt = os.environ['FINAL_LINK_CREATION_PROMPT']
 
             for platform in request.data['platforms']:
-                prompt = prompt + " " + platform
+                prompt = prompt + " " + platform + ". TIMEZONE: " + time_zone + "."
             openai_response = client.responses.create(
                 model="gpt-4o-mini",
                 instructions=prompt,
